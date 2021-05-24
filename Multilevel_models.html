@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Multilevel models using HLM&comma; Stata&comma; and R</title>
+        <style>
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="multilevel-models-using-hlm-stata-and-r">Multilevel models using HLM, Stata, and R</h1>
+<ul>
+<li><a href="#multilevel-models-using-hlm-stata-and-r">Multilevel models using HLM, Stata, and R</a>
+<ul>
+<li><a href="#1-random-intercept-model">1. Random intercept model</a>
+<ul>
+<li><a href="#hlm">HLM</a></li>
+<li><a href="#stata">Stata</a></li>
+<li><a href="#r">R</a></li>
+<li><a href="#comparison">comparison</a></li>
+</ul>
+</li>
+<li><a href="#2-elaborate-random-intercept-model">2. Elaborate random intercept model</a>
+<ul>
+<li><a href="#hlm-1">HLM</a></li>
+<li><a href="#stata-1">Stata</a></li>
+<li><a href="#r-1">R</a></li>
+<li><a href="#comparison-1">comparison</a></li>
+</ul>
+</li>
+<li><a href="#3-random-slope--intercept-model">3. Random slope &amp; intercept model</a>
+<ul>
+<li><a href="#hlm-2">HLM</a></li>
+<li><a href="#stata-2">Stata</a></li>
+<li><a href="#r-2">R</a></li>
+<li><a href="#comparison-2">comparison</a></li>
+</ul>
+</li>
+<li><a href="#4-full-model">4. Full model</a>
+<ul>
+<li><a href="#hlm-3">HLM</a></li>
+<li><a href="#stata-3">Stata</a></li>
+<li><a href="#r-3">R</a></li>
+<li><a href="#comparison-3">comparison</a></li>
+</ul>
+</li>
+<li><a href="#0-baseline-anova-model">0. Baseline ANOVA model</a>
+<ul>
+<li><a href="#hlm-4">HLM</a></li>
+<li><a href="#stata-4">Stata</a></li>
+<li><a href="#r-4">R</a></li>
+<li><a href="#comparison-4">comparison</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Dataset:<br>
+ICPSR 9741, “Testing Theories of Criminality and Victimization in Seattle, 1960-1990”<br>
+dta file <a href="./data/merge.dta">here</a><br>
+mdm file <a href="./data/merge.mdm">here</a><br>
+N = 4893<br>
+group = 100 census tracts</p>
+<h2 id="1-random-intercept-model">1. Random intercept model</h2>
+<p>level 1 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>u</mi><mi>t</mi><mo>=</mo><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">precaut = \beta_{0j} + \beta_{1}(married) + \epsilon_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">a</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{0j} = \gamma_{00}+\mu_{0j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="hlm">HLM</h3>
+<pre><code><code><div>  The maximum number of level-1 units = 4893
+  The maximum number of level-2 units = 100
+  The maximum number of iterations = 100
+  Method of estimation: restricted maximum likelihood
+
+
+  The outcome variable is  PRECAUT    
+
+
+ Summary of the model specified (in hierarchical format)
+ ---------------------------------------------------
+
+Step 2 Model
+
+
+Level-1 Model
+
+	PRECAUT = B0 + B1*(MARRIED) + r
+
+
+Level-2 Model
+	B0 = G00 + u0
+	B1 = G10 
+
+
+Mixed Model
+    PRECAUT = G00 
+    + G10*MARRIED  + u0+ r
+
+Iterations stopped due to small change in likelihood function
+******* ITERATION 6 *******
+
+
+ sigma^2 =      1.54208
+
+tau
+ INTRCPT1,B0      0.12686 
+
+ ----------------------------------------------------
+  Random level-1 coefficient   Reliability estimate
+ ----------------------------------------------------
+  INTRCPT1, G0                        0.801
+ ----------------------------------------------------
+The value of the log-likelihood function at iteration 6 = -8.085967E+03
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects:
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.387865   0.044663    75.854        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.422819   0.037040    11.415      4792    0.000
+ ----------------------------------------------------------------------------
+
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects
+ (with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.387865   0.047011    72.065        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.422819   0.036601    11.552      4792    0.000
+ ----------------------------------------------------------------------------
+
+
+
+ Final estimation of variance components:
+ -----------------------------------------------------------------------------
+ Random Effect           Standard      Variance     df    Chi-square  P-value
+                         Deviation     Component
+ -----------------------------------------------------------------------------
+ INTRCPT1,       u0        0.35617       0.12686    99     495.09156    0.000
+  level-1,       r         1.24181       1.54208
+ -----------------------------------------------------------------------------
+
+
+ Statistics for current covariance components model
+ --------------------------------------------------
+ Deviance                       = 16171.934340
+ Number of estimated parameters = 2
+
+</div></code></code></pre>
+<h3 id="stata">Stata</h3>
+<pre><code class="language-stata"><div>
+mixed precaut married || tract:, reml 
+
+Performing EM optimization: 
+
+Performing gradient-based optimization: 
+
+Iteration 0:   <span class="hljs-keyword">log</span> restricted-likelihood = -8086.8861  
+Iteration 1:   <span class="hljs-keyword">log</span> restricted-likelihood = -8086.8861  
+
+Computing standard errors:
+
+Mixed-effects REML regression                   Number of obs     =      4,893
+Group variable: tract                           Number of groups  =        100
+
+                                                Obs per group:
+                                                              min =         41
+                                                              avg =       48.9
+                                                              max =         56
+
+                                                Wald <span class="hljs-built_in">chi2</span>(1)      =     130.31
+<span class="hljs-keyword">Log</span> restricted-likelihood = -8086.8861          <span class="hljs-keyword">Prob</span> &gt; chi2       =     0.0000
+
+------------------------------------------------------------------------------
+     precaut |      Coef.   Std. <span class="hljs-keyword">Err</span>.      z    P&gt;|z|     [95% <span class="hljs-keyword">Conf</span>. Interval]
+-------------+----------------------------------------------------------------
+     married |   .4228184     .03704    11.42   0.000     .3502213    .4954155
+       _cons |   3.387865   .0446634    75.85   0.000     3.300327    3.475404
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects Parameters  |   Estimate   Std. <span class="hljs-keyword">Err</span>.     [95% <span class="hljs-keyword">Conf</span>. Interval]
+-----------------------------+------------------------------------------------
+tract: Identity              |
+                  <span class="hljs-keyword">var</span>(_cons) |   .1268593   .0227757      .0892282     .180361
+-----------------------------+------------------------------------------------
+               <span class="hljs-keyword">var</span>(Residual) |   1.542084   .0315108      1.481544    1.605097
+------------------------------------------------------------------------------
+LR <span class="hljs-keyword">test</span> vs. linear model: chibar2(01) = 208.76        <span class="hljs-keyword">Prob</span> &gt;= chibar2 = 0.0000
+</div></code></pre>
+<h3 id="r">R</h3>
+<pre><code><code><div>library(lmerTest)
+library(tidyverse)
+library(haven)
+
+df &lt;- read_dta(&quot;merge.dta&quot;)
+
+random_intercept &lt;- lmer(precaut ~ married + (1 | tract), data = df, REML=TRUE)
+summary(random_intercept)
+
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: precaut ~ married + (1 | tract)
+   Data: df
+
+REML criterion at convergence: 16173.8
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1033 -0.6980  0.0173  0.7008  3.1830 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ tract    (Intercept) 0.1269   0.3562  
+ Residual             1.5421   1.2418  
+Number of obs: 4893, groups:  tract, 100
+
+Fixed effects:
+             Estimate Std. Error        df t value Pr(&gt;|t|)    
+(Intercept) 3.388e+00  4.466e-02 1.519e+02   75.85   &lt;2e-16 ***
+married     4.228e-01  3.704e-02 4.891e+03   11.41   &lt;2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+        (Intr)
+married -0.454
+</div></code></code></pre>
+<h3 id="comparison">comparison</h3>
+<ul>
+<li>All: restricted maximum likelihood method</li>
+<li>HLM: log likelihood = -8.085967E+03</li>
+<li>Stata: log likelihood = -8086.8861</li>
+<li>R: log likelihood not reported</li>
+<li>Stata vs HLM: estimates very similar, but not exactly the same</li>
+<li>R vs HLM: FE very similar, RE exactly the same after rounding</li>
+</ul>
+<h2 id="2-elaborate-random-intercept-model">2. Elaborate random intercept model</h2>
+<p>level 1 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>u</mi><mi>t</mi><mo>=</mo><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">precaut = \beta_{0j} + \beta_{1}(married) + \epsilon_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">a</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>γ</mi><mn>01</mn></msub><mo stretchy="false">(</mo><mi>P</mi><mi>K</mi><mi>I</mi><mi>D</mi><mi>P</mi><mi>A</mi><mi>R</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{0j} = \gamma_{00}+\gamma_{01}(PKIDPAR) +\mu_{0j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="hlm-1">HLM</h3>
+<ul>
+<li>variables are not centered</li>
+</ul>
+<pre><code><code><div>  The maximum number of level-1 units = 4893
+  The maximum number of level-2 units = 100
+  The maximum number of iterations = 100
+  Method of estimation: restricted maximum likelihood
+
+
+  The outcome variable is  PRECAUT    
+
+
+ Summary of the model specified (in hierarchical format)
+ ---------------------------------------------------
+
+Step 2 Model
+
+
+Level-1 Model
+
+	PRECAUT = B0 + B1*(MARRIED) + r
+
+
+Level-2 Model
+	B0 = G00 + G01*(PKIDPAR) + u0
+	B1 = G10 
+
+
+Mixed Model
+    PRECAUT = G00 + G01*PKIDPAR 
+    + G10*MARRIED  + u0+ r
+
+Iterations stopped due to small change in likelihood function
+******* ITERATION 6 *******
+
+
+ sigma^2 =      1.54205
+
+tau
+ INTRCPT1,B0      0.11716 
+
+ ----------------------------------------------------
+  Random level-1 coefficient   Reliability estimate
+ ----------------------------------------------------
+  INTRCPT1, G0                        0.788
+ ----------------------------------------------------
+The value of the log-likelihood function at iteration 6 = -8.083631E+03
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects:
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           2.875783   0.191015    15.055        98    0.000
+     PKIDPAR, G01           0.720842   0.262440     2.747        98    0.007
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.417410   0.037122    11.244      4792    0.000
+ ----------------------------------------------------------------------------
+
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects
+ (with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           2.875783   0.245240    11.726        98    0.000
+     PKIDPAR, G01           0.720842   0.337189     2.138        98    0.035
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.417410   0.037808    11.040      4792    0.000
+ ----------------------------------------------------------------------------
+
+
+
+ Final estimation of variance components:
+ -----------------------------------------------------------------------------
+ Random Effect           Standard      Variance     df    Chi-square  P-value
+                         Deviation     Component
+ -----------------------------------------------------------------------------
+ INTRCPT1,       u0        0.34229       0.11716    98     458.47901    0.000
+  level-1,       r         1.24179       1.54205
+ -----------------------------------------------------------------------------
+
+
+ Statistics for current covariance components model
+ --------------------------------------------------
+ Deviance                       = 16167.262735
+ Number of estimated parameters = 2
+</div></code></code></pre>
+<h3 id="stata-1">Stata</h3>
+<pre><code><code><div>mixed precaut married PKIDPAR || tract: , reml 
+
+Performing EM optimization: 
+
+Performing gradient-based optimization: 
+
+Iteration 0:   log restricted-likelihood = -8083.6314  
+Iteration 1:   log restricted-likelihood = -8083.6314  
+
+Computing standard errors:
+
+Mixed-effects REML regression                   Number of obs     =      4,893
+Group variable: tract                           Number of groups  =        100
+
+                                                Obs per group:
+                                                              min =         41
+                                                              avg =       48.9
+                                                              max =         56
+
+                                                Wald chi2(2)      =     139.44
+Log restricted-likelihood = -8083.6314          Prob &gt; chi2       =     0.0000
+
+------------------------------------------------------------------------------
+     precaut |      Coef.   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     married |   .4174094   .0371218    11.24   0.000      .344652    .4901668
+     PKIDPAR |    .720842   .2624409     2.75   0.006     .2064672    1.235217
+       _cons |   2.875783   .1910154    15.06   0.000       2.5014    3.250166
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects Parameters  |   Estimate   Std. Err.     [95% Conf. Interval]
+-----------------------------+------------------------------------------------
+tract: Identity              |
+                  var(_cons) |   .1171623   .0214714      .0818078    .1677956
+-----------------------------+------------------------------------------------
+               var(Residual) |   1.542053   .0315096      1.481516    1.605064
+------------------------------------------------------------------------------
+LR test vs. linear model: chibar2(01) = 187.98        Prob &gt;= chibar2 = 0.0000
+</div></code></code></pre>
+<h3 id="r-1">R</h3>
+<pre><code><code><div>elaborated_random_intercept &lt;- lmer(precaut ~ married + PKIDPAR + (1 | tract), data = df, REML=TRUE)
+summary(elaborated_random_intercept)
+
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: precaut ~ married + PKIDPAR + (1 | tract)
+   Data: df
+
+REML criterion at convergence: 16167.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.0962 -0.6979  0.0214  0.7037  3.1760 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ tract    (Intercept) 0.1172   0.3423  
+ Residual             1.5421   1.2418  
+Number of obs: 4893, groups:  tract, 100
+
+Fixed effects:
+             Estimate Std. Error        df t value Pr(&gt;|t|)    
+(Intercept) 2.876e+00  1.910e-01 9.676e+01  15.055  &lt; 2e-16 ***
+married     4.174e-01  3.712e-02 4.885e+03  11.244  &lt; 2e-16 ***
+PKIDPAR     7.208e-01  2.624e-01 9.762e+01   2.747  0.00717 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+        (Intr) marrid
+married -0.032       
+PKIDPAR -0.974 -0.076
+</div></code></code></pre>
+<h3 id="comparison-1">comparison</h3>
+<ul>
+<li>All: restricted maximum likelihood method</li>
+<li>HLM: log likelihood = -8.083631E+03</li>
+<li>Stata: log likelihood = -8083.6314</li>
+<li>R: log likelihood not reported</li>
+<li>Stata vs HLM: exactly the same after rounding</li>
+<li>R vs HLM: exactly the same after rounding</li>
+</ul>
+<h2 id="3-random-slope--intercept-model">3. Random slope &amp; intercept model</h2>
+<p>level 1 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>u</mi><mi>t</mi><mo>=</mo><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">precaut = \beta_{0j} + \beta_{1j}(married) + \epsilon_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">a</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{0j} = \gamma_{00}+\mu_{0j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>10</mn></msub><mo>+</mo><msub><mi>μ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{1j} = \gamma_{10}+\mu_{1j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="hlm-2">HLM</h3>
+<pre><code><code><div>  The maximum number of level-1 units = 4893
+  The maximum number of level-2 units = 100
+  The maximum number of iterations = 100
+  Method of estimation: restricted maximum likelihood
+
+
+  The outcome variable is  PRECAUT    
+
+
+ Summary of the model specified (in hierarchical format)
+ ---------------------------------------------------
+
+Step 2 Model
+
+
+Level-1 Model
+
+	PRECAUT = B0 + B1*(MARRIED) + r
+
+
+Level-2 Model
+	B0 = G00 + u0
+	B1 = G10 + u1
+
+
+Mixed Model
+    PRECAUT = G00 
+    + G10*MARRIED  + u0 + u1*MARRIED + r
+
+Iterations stopped due to small change in likelihood function
+******* ITERATION 343 *******
+
+
+ sigma^2 =      1.54159
+
+tau
+ INTRCPT1,B0      0.15060      -0.02861 
+  MARRIED,B1     -0.02861       0.00761 
+
+tau (as correlations)
+ INTRCPT1,B0  1.000 -0.845
+  MARRIED,B1 -0.845  1.000
+
+ ----------------------------------------------------
+  Random level-1 coefficient   Reliability estimate
+ ----------------------------------------------------
+  INTRCPT1, G0                        0.668
+   MARRIED, G1                        0.052
+ ----------------------------------------------------
+The value of the log-likelihood function at iteration 343 = -8.084747E+03
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects:
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.393326   0.047309    71.726        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.424341   0.038043    11.154        99    0.000
+ ----------------------------------------------------------------------------
+
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects
+ (with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.393326   0.046821    72.475        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.424341   0.036616    11.589        99    0.000
+ ----------------------------------------------------------------------------
+
+
+
+ Final estimation of variance components:
+ -----------------------------------------------------------------------------
+ Random Effect           Standard      Variance     df    Chi-square  P-value
+                         Deviation     Component
+ -----------------------------------------------------------------------------
+ INTRCPT1,       u0        0.38807       0.15060    99     346.28212    0.000
+  MARRIED slope, u1        0.08726       0.00761    99     104.07219    0.344
+  level-1,       r         1.24161       1.54159
+ -----------------------------------------------------------------------------
+
+
+ Statistics for current covariance components model
+ --------------------------------------------------
+ Deviance                       = 16169.493310
+ Number of estimated parameters = 4
+</div></code></code></pre>
+<h3 id="stata-2">Stata</h3>
+<ul>
+<li><a href="https://tutorials.methodsconsultants.com/posts/estimating-hlm-models-using-stata-part-3/">cov(un)</a>: by default, Stata will assume that the two random effects are not correlated. The cov(un) option tells Stata to treat the random effects covariance matrix as unstructured, meaning that the covariance may also be estimated</li>
+</ul>
+<pre><code><code><div>mixed precaut married || tract: married, reml cov(un)
+
+Performing EM optimization: 
+
+Performing gradient-based optimization: 
+
+Iteration 0:   log restricted-likelihood = -8086.7099  
+Iteration 1:   log restricted-likelihood = -8085.6641  
+Iteration 2:   log restricted-likelihood = -8085.6108  
+Iteration 3:   log restricted-likelihood =   -8085.61  
+Iteration 4:   log restricted-likelihood =   -8085.61  
+
+Computing standard errors:
+
+Mixed-effects REML regression                   Number of obs     =      4,893
+Group variable: tract                           Number of groups  =        100
+
+                                                Obs per group:
+                                                              min =         41
+                                                              avg =       48.9
+                                                              max =         56
+
+                                                Wald chi2(1)      =     126.75
+Log restricted-likelihood =   -8085.61          Prob &gt; chi2       =     0.0000
+
+------------------------------------------------------------------------------
+     precaut |      Coef.   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     married |   .4244174   .0376988    11.26   0.000     .3505291    .4983057
+       _cons |   3.393332   .0472203    71.86   0.000     3.300782    3.485882
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects Parameters  |   Estimate   Std. Err.     [95% Conf. Interval]
+-----------------------------+------------------------------------------------
+tract: Unstructured          |
+                var(married) |   .0049951    .006293      .0004228    .0590084
+                  var(_cons) |   .1497956   .0301337      .1009874    .2221934
+          cov(married,_cons) |  -.0273541     .01895     -.0644954    .0097872
+-----------------------------+------------------------------------------------
+               var(Residual) |   1.542165   .0315132      1.481621    1.605183
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(3) = 211.32                Prob &gt; chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+</div></code></code></pre>
+<h3 id="r-2">R</h3>
+<pre><code><code><div>random_slope &lt;- lmer(precaut ~ married  + (married | tract), data = df, REML=TRUE)
+summary(random_slope)
+
+&gt; random_slope &lt;- lmer(precaut ~ married  + (married | tract), data = df, REML=TRUE)
+boundary (singular) fit: see ?isSingular
+Warning message:
+Model failed to converge with 1 negative eigenvalue: -2.0e+02 
+&gt; summary(random_slope)
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: precaut ~ married + (married | tract)
+   Data: df
+
+REML criterion at convergence: 16171.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1466 -0.6944  0.0297  0.7012  3.1857 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ tract    (Intercept) 0.149790 0.38703       
+          married     0.004994 0.07067  -1.00
+ Residual             1.542166 1.24184       
+Number of obs: 4893, groups:  tract, 100
+
+Fixed effects:
+             Estimate Std. Error        df t value Pr(&gt;|t|)    
+(Intercept)   3.39333    0.04722 107.42022   71.86   &lt;2e-16 ***
+married       0.42442    0.03770 851.77508   11.26   &lt;2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+        (Intr)
+married -0.578
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see ?isSingular
+</div></code></code></pre>
+<h3 id="comparison-2">comparison</h3>
+<ul>
+<li>All: restricted maximum likelihood method</li>
+<li>HLM: log likelihood = -8.084747E+03</li>
+<li>Stata: log likelihood = -8085.61</li>
+<li>R: log likelihood not reported</li>
+<li>Stata vs HLM: FE: similar; RE: different estimates, some what different conclusion</li>
+<li>R vs HLM: FE: similar; RE: different</li>
+<li>R vs Stata: exactly the same after rounding</li>
+</ul>
+<h2 id="4-full-model">4. Full model</h2>
+<p>level 1 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>u</mi><mi>t</mi><mo>=</mo><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>β</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">precaut = \beta_{0j} + \beta_{1j}(married) + \epsilon_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">a</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{0j} = \gamma_{00}+\mu_{0j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>γ</mi><mn>10</mn></msub><mo>+</mo><msub><mi>γ</mi><mn>11</mn></msub><mo stretchy="false">(</mo><mi>P</mi><mi>K</mi><mi>I</mi><mi>D</mi><mi>P</mi><mi>A</mi><mi>R</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>μ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\beta_{1j} = \gamma_{10}+\gamma_{11}(PKIDPAR)+\mu_{1j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span><br>
+mixed : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>a</mi><mi>u</mi><mi>t</mi><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>γ</mi><mn>10</mn></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>γ</mi><mn>11</mn></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo>∗</mo><mi>P</mi><mi>K</mi><mi>I</mi><mi>D</mi><mi>P</mi><mi>A</mi><mi>R</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>μ</mi><mrow><mn>1</mn><mi>j</mi></mrow></msub><mo stretchy="false">(</mo><mi>m</mi><mi>a</mi><mi>r</mi><mi>r</mi><mi>i</mi><mi>e</mi><mi>d</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>ϵ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">precaut = \gamma_{00}+\mu_{0j} + \gamma_{10}(married) + \gamma_{11}(married*PKIDPAR)+\mu_{1j}(married) + \epsilon_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.80952em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">a</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.8694379999999999em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">ϵ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="hlm-3">HLM</h3>
+<pre><code><code><div>  The maximum number of level-1 units = 4893
+  The maximum number of level-2 units = 100
+  The maximum number of iterations = 100
+  Method of estimation: restricted maximum likelihood
+
+
+  The outcome variable is  PRECAUT    
+
+
+ Summary of the model specified (in hierarchical format)
+ ---------------------------------------------------
+
+Step 2 Model
+
+
+Level-1 Model
+
+	PRECAUT = B0 + B1*(MARRIED) + r
+
+
+Level-2 Model
+	B0 = G00 + u0
+	B1 = G10 + G11*(PKIDPAR) + u1
+
+
+Mixed Model
+    PRECAUT = G00 
+    + G10*MARRIED + G11*PKIDPAR*MARRIED  + u0 + u1*MARRIED + r
+
+Iterations stopped due to small change in likelihood function
+******* ITERATION 333 *******
+
+
+ sigma^2 =      1.54131
+
+tau
+ INTRCPT1,B0      0.15036      -0.03676 
+  MARRIED,B1     -0.03676       0.01115 
+
+tau (as correlations)
+ INTRCPT1,B0  1.000 -0.898
+  MARRIED,B1 -0.898  1.000
+
+ ----------------------------------------------------
+  Random level-1 coefficient   Reliability estimate
+ ----------------------------------------------------
+  INTRCPT1, G0                        0.667
+   MARRIED, G1                        0.074
+ ----------------------------------------------------
+The value of the log-likelihood function at iteration 333 = -8.082962E+03
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects:
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.388315   0.047346    71.564        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.010822   0.162262     0.067        98    0.947
+     PKIDPAR, G11           0.578024   0.219106     2.638        98    0.010
+ ----------------------------------------------------------------------------
+
+ The outcome variable is  PRECAUT
+
+ Final estimation of fixed effects
+ (with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00           3.388315   0.047484    71.357        99    0.000
+ For  MARRIED slope, B1
+    INTRCPT2, G10           0.010822   0.188403     0.057        98    0.954
+     PKIDPAR, G11           0.578024   0.251365     2.300        98    0.024
+ ----------------------------------------------------------------------------
+
+
+
+ Final estimation of variance components:
+ -----------------------------------------------------------------------------
+ Random Effect           Standard      Variance     df    Chi-square  P-value
+                         Deviation     Component
+ -----------------------------------------------------------------------------
+ INTRCPT1,       u0        0.38776       0.15036    99     345.28150    0.000
+  MARRIED slope, u1        0.10559       0.01115    98     103.76075    0.326
+  level-1,       r         1.24149       1.54131
+ -----------------------------------------------------------------------------
+
+
+ Statistics for current covariance components model
+ --------------------------------------------------
+ Deviance                       = 16165.924031
+ Number of estimated parameters = 4
+</div></code></code></pre>
+<h3 id="stata-3">Stata</h3>
+<ul>
+<li>although married is a binary variable, treating it as a factor variable in the interaction part would result in two coefficient estimates for the interaction</li>
+</ul>
+<pre><code><code><div>mixed precaut married c.married#c.PKIDPAR || tract: married, reml cov(un)
+
+Performing EM optimization: 
+
+Performing gradient-based optimization: 
+
+Iteration 0:   log restricted-likelihood = -8083.9887  
+Iteration 1:   log restricted-likelihood = -8082.9676  
+Iteration 2:   log restricted-likelihood = -8082.9085  
+Iteration 3:   log restricted-likelihood = -8082.9073  
+Iteration 4:   log restricted-likelihood = -8082.9073  
+
+Computing standard errors:
+standard-error calculation has failed
+
+Mixed-effects REML regression                   Number of obs     =      4,893
+Group variable: tract                           Number of groups  =        100
+
+                                                Obs per group:
+                                                              min =         41
+                                                              avg =       48.9
+                                                              max =         56
+
+                                                Wald chi2(2)      =     132.28
+Log restricted-likelihood = -8082.9073          Prob &gt; chi2       =     0.0000
+
+-------------------------------------------------------------------------------------
+            precaut |      Coef.   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+            married |   .0140524   .1609216     0.09   0.930    -.3013482     .329453
+                    |
+c.married#c.PKIDPAR |    .573634   .2173086     2.64   0.008      .147717    .9995509
+                    |
+              _cons |   3.388256   .0472577    71.70   0.000     3.295633     3.48088
+-------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+  Random-effects Parameters  |   Estimate   Std. Err.     [95% Conf. Interval]
+-----------------------------+------------------------------------------------
+tract: Unstructured          |
+                var(married) |   .0083837          .             .           .
+                  var(_cons) |   .1495414          .             .           .
+          cov(married,_cons) |  -.0354077          .             .           .
+-----------------------------+------------------------------------------------
+               var(Residual) |    1.54191          .             .           .
+------------------------------------------------------------------------------
+LR test vs. linear model: chi2(3) = 197.25                Prob &gt; chi2 = 0.0000
+
+Note: LR test is conservative and provided only for reference.
+Warning: standard-error calculation failed
+</div></code></code></pre>
+<h3 id="r-3">R</h3>
+<pre><code><code><div>df$interaction &lt;- df$married * df$PKIDPAR
+full_model2 &lt;- lmer(precaut ~ married + interaction  + (married | tract), data = df, REML=TRUE)
+summary(full_model2)
+
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: precaut ~ married + interaction + (married | tract)
+   Data: df
+
+REML criterion at convergence: 16165.8
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1642 -0.7048  0.0086  0.7123  3.1836 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ tract    (Intercept) 0.149539 0.38670       
+          married     0.008383 0.09156  -1.00
+ Residual             1.541910 1.24174       
+Number of obs: 4893, groups:  tract, 100
+
+Fixed effects:
+             Estimate Std. Error        df t value Pr(&gt;|t|)    
+(Intercept)   3.38826    0.04726 107.25753  71.698  &lt; 2e-16 ***
+married       0.01405    0.16092 450.76800   0.087  0.93045    
+interaction   0.57363    0.21731 338.21396   2.640  0.00868 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) marrid
+married     -0.101       
+interaction -0.046 -0.972
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see ?isSingular
+</div></code></code></pre>
+<h3 id="comparison-3">comparison</h3>
+<ul>
+<li>All: restricted maximum likelihood method</li>
+<li>HLM: log likelihood = -8.082962E+03</li>
+<li>Stata: log likelihood = -8082.9073</li>
+<li>R: log likelihood not reported</li>
+<li>Stata vs HLM: FE: similar except married; RE: different estimates, some what different conclusion</li>
+<li>R vs HLM: FE: similar except married RE: different</li>
+<li>R vs Stata: exactly the same after rounding</li>
+</ul>
+<h2 id="0-baseline-anova-model">0. Baseline ANOVA model</h2>
+<p>Random effects one-way analysis of variance (or ANOVA) model<br>
+nonlinear model: logistic regression<br>
+level 1 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false">(</mo><mfrac><mi>P</mi><mrow><mn>1</mn><mo>−</mo><mi>P</mi></mrow></mfrac><mo stretchy="false">)</mo><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">log(\frac{P}{1-P}) = \beta_{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.275662em;vertical-align:-0.403331em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.872331em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mbin mtight">−</span><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.403331em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><br>
+level 2 : <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>0</mn></msub><mo>=</mo><msub><mi>γ</mi><mn>00</mn></msub><mo>+</mo><msub><mi>μ</mi><mn>00</mn></msub></mrow><annotation encoding="application/x-tex">\beta_{0} = \gamma_{00}+\mu_{00}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05556em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h3 id="hlm-4">HLM</h3>
+<pre><code><code><div>  The maximum number of level-1 units = 4893
+  The maximum number of level-2 units = 100
+  The maximum number of micro iterations = 14
+  Method of estimation: full PQL
+
+  Maximum number of macro iterations = 100
+
+  Distribution at Level-1: Bernoulli
+
+  The outcome variable is BURGLARY    
+
+
+ Summary of the model specified (in hierarchical format)
+ ---------------------------------------------------
+
+Step 2 Model
+
+
+Level-1 Model
+
+	Prob(Y=1|B) = P
+
+	log[P/(1-P)] = B0 
+
+Level-2 Model
+	B0 = G00 + u0
+
+Level-1 variance = 1/[P(1-P)]
+
+
+Mixed Model
+    eta = G00  + u0
+The value of the log-likelihood function at iteration 3 = -1.940793E+03
+RESULTS FOR NON-LINEAR MODEL WITH THE LOGIT LINK FUNCTION:
+  Unit-Specific Model, PQL Estimation - (macro iteration 3)
+
+tau
+ INTRCPT1,B0      0.13197 
+
+Standard error of tau
+ INTRCPT1,B0      0.04118 
+
+Approximate confidence intervals of tau variances
+ INTRCPT1    : (0.071,0.245)
+
+ ----------------------------------------------------
+  Random level-1 coefficient   Reliability estimate
+ ----------------------------------------------------
+  INTRCPT1, G0                        0.451
+ ----------------------------------------------------
+The value of the log-likelihood function at iteration 2 = -6.861263E+03
+ The outcome variable is BURGLARY
+
+ Final estimation of fixed effects: (Unit-specific model)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.725448   0.054080   -31.906        99    0.000
+ ----------------------------------------------------------------------------
+
+ ----------------------------------------------------------------------
+                                            Odds         Confidence
+    Fixed Effect         Coefficient        Ratio        Interval
+ ----------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.725448       0.178093     (0.160,0.198)
+ ----------------------------------------------------------------------
+
+ The outcome variable is BURGLARY
+
+ Final estimation of fixed effects
+ (Unit-specific model with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.725448   0.054081   -31.905        99    0.000
+ ----------------------------------------------------------------------------
+
+ ----------------------------------------------------------------------
+                                            Odds         Confidence
+    Fixed Effect         Coefficient        Ratio        Interval
+ ----------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.725448       0.178093     (0.160,0.198)
+ ----------------------------------------------------------------------
+
+
+
+ Final estimation of variance components:
+ -----------------------------------------------------------------------------
+ Random Effect           Standard      Variance     df    Chi-square  P-value
+                         Deviation     Component
+ -----------------------------------------------------------------------------
+ INTRCPT1,       u0        0.36327       0.13197    99     185.90608    0.000
+ -----------------------------------------------------------------------------
+
+
+RESULTS FOR POPULATION-AVERAGE MODEL
+
+The value of the log-likelihood function at iteration 3 = -6.900260E+03
+ The outcome variable is BURGLARY
+
+ Final estimation of fixed effects: (Population-average model)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.704813   0.053601   -31.805        99    0.000
+ ----------------------------------------------------------------------------
+
+ ----------------------------------------------------------------------
+                                            Odds         Confidence
+    Fixed Effect         Coefficient        Ratio        Interval
+ ----------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.704813       0.181806     (0.163,0.202)
+ ----------------------------------------------------------------------
+
+ The outcome variable is BURGLARY
+
+ Final estimation of fixed effects
+ (Population-average model with robust standard errors)
+ ----------------------------------------------------------------------------
+                                       Standard             Approx.
+    Fixed Effect         Coefficient   Error      T-ratio   d.f.     P-value
+ ----------------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.704813   0.052800   -32.288        99    0.000
+ ----------------------------------------------------------------------------
+
+ ----------------------------------------------------------------------
+                                            Odds         Confidence
+    Fixed Effect         Coefficient        Ratio        Interval
+ ----------------------------------------------------------------------
+ For       INTRCPT1, B0
+    INTRCPT2, G00          -1.704813       0.181806     (0.164,0.202)
+ ----------------------------------------------------------------------
+</div></code></code></pre>
+<h3 id="stata-4">Stata</h3>
+<p>Stata manual:</p>
+<ul>
+<li>Both PQL and MQL use a combination of iterative reweighted least squares (see [R] glm) and standard estimation techniques for fitting LME models. Efficient computational methods for fitting LME models have existed for some time (Bates and Pinheiro 1998; Littell et al. 2006), and PQL and MQL inherit this computational efficiency. However, both of these methods suffer from two key disadvantages. First, they have been shown to be biased, and this bias can be severe when clusters are small or intracluster correlation is high (Rodr´ıguez and Goldman 1995; Lin and Breslow 1996). Second, because they are “quasilikelihood” methods and not true likelihood methods, their use prohibits comparing nested models via likelihood-ratio (LR) tests, blocking the main avenue of inference involving variance components.</li>
+<li>The advent of modern computers has brought with it the development of more computationally intensive methods, such as bias-corrected PQL (Lin and Breslow 1996), Bayesian Markov-Chain Monte Carlo, and simulated maximum likelihood, just to name a few; see Ng et al. (2006) for a discussion of these alternate strategies (and more) for mixed-effects models for binary outcomes.</li>
+<li>One widely used modern method is to directly estimate the integral required to calculate the log likelihood by Gauss–Hermite quadrature or some variation thereof. Because the log likelihood itself is estimated, this method has the advantage of permitting LR tests for comparing nested models. Also, if done correctly, quadrature approximations can be quite accurate, thus minimizing bias. Stata commands for fitting GLME models such as meglm support three types of Gauss–Hermite quadratures</li>
+<li>mvaghermite: <strong>mean-variance adaptive Gauss-Hermite quadrature</strong>; the default unless a crossed random-effects model is fit</li>
+<li>laplace: Laplacian approximation; the default for crossed random-effects models</li>
+</ul>
+<pre><code><code><div>melogit burglary || tract:
+
+Fitting fixed-effects model:
+
+Iteration 0:   log likelihood = -2099.5141  
+Iteration 1:   log likelihood = -2099.3657  
+Iteration 2:   log likelihood = -2099.3657  
+
+Refining starting values:
+
+Grid node 0:   log likelihood = -2115.4237
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -2115.4237  (not concave)
+Iteration 1:   log likelihood = -2090.4266  
+Iteration 2:   log likelihood = -2088.3049  
+Iteration 3:   log likelihood = -2087.9255  
+Iteration 4:   log likelihood = -2087.9241  
+Iteration 5:   log likelihood = -2087.9241  
+
+Mixed-effects logistic regression               Number of obs     =      4,893
+Group variable:           tract                 Number of groups  =        100
+
+                                                Obs per group:
+                                                              min =         41
+                                                              avg =       48.9
+                                                              max =         56
+
+Integration method: mvaghermite                 Integration pts.  =          7
+
+                                                Wald chi2(0)      =          .
+Log likelihood = -2087.9241                     Prob &gt; chi2       =          .
+------------------------------------------------------------------------------
+    burglary |      Coef.   Std. Err.      z    P&gt;|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       _cons |  -1.752289   .0563366   -31.10   0.000    -1.862706   -1.641871
+-------------+----------------------------------------------------------------
+tract        |
+   var(_cons)|   .1398114   .0451243                      .0742705    .2631897
+------------------------------------------------------------------------------
+LR test vs. logistic model: chibar2(01) = 22.88       Prob &gt;= chibar2 = 0.0000
+</div></code></code></pre>
+<h3 id="r-4">R</h3>
+<p>Different <a href="https://stats.stackexchange.com/questions/436611/how-are-pql-reml-ml-laplace-gauss-hermite-related-to-each-other">packages</a>:</p>
+<ul>
+<li>glmmPQL: PQL</li>
+<li>nlme: Laplace</li>
+<li>glmer: can specify Adaptive Gauss-Hermite Quadrature</li>
+</ul>
+<p><strong>glmmPQL</strong></p>
+<pre><code><code><div>library(nlme)
+library(MASS)
+summary(glmmPQL(burglary~1, random = ~ 1 | tract,
+                family = binomial, data = df))
+
+&gt; summary(glmmPQL(burglary~1, random = ~ 1 | tract,
++                 family = binomial, data = df))
+iteration 1
+iteration 2
+iteration 3
+
+Linear mixed-effects model fit by maximum likelihood
+ Data: df 
+  AIC BIC logLik
+   NA  NA     NA
+
+Random effects:
+ Formula: ~1 | tract
+        (Intercept) Residual
+StdDev:   0.3744752 0.976604
+
+Variance function:
+ Structure: fixed weights
+ Formula: ~invwt 
+Fixed effects: burglary ~ 1 
+                Value  Std.Error   DF   t-value p-value
+(Intercept) -1.727894 0.05420989 4793 -31.87415       0
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-0.5767131 -0.4583178 -0.4134053 -0.3596129  3.1862156 
+
+Number of Observations: 4893
+Number of Groups: 100
+</div></code></code></pre>
+<p><strong>glmer</strong></p>
+<pre><code><code><div>model_anova3 &lt;- glmer(burglary ~ (1 | tract), data = df, family = binomial, 
+                      nAGQ = 10)
+summary(model_anova3)
+
+Generalized linear mixed model fit by maximum likelihood (Adaptive Gauss-Hermite Quadrature, nAGQ = 10) ['glmerMod']
+ Family: binomial  ( logit )
+Formula: burglary ~ (1 | tract)
+   Data: df
+
+     AIC      BIC   logLik deviance df.resid 
+  4179.8   4192.8  -2087.9   4175.8     4891 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-0.5570 -0.4442 -0.4014 -0.3504  3.1083 
+
+Random effects:
+ Groups Name        Variance Std.Dev.
+ tract  (Intercept) 0.1398   0.3739  
+Number of obs: 4893, groups:  tract, 100
+
+Fixed effects:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -1.75229    0.05634   -31.1   &lt;2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+</div></code></code></pre>
+<h3 id="comparison-4">comparison</h3>
+<ul>
+<li>HLM: PQL method</li>
+<li>Stata: adaptive Gauss–Hermite quadrature</li>
+<li>Stata vs HLM: similar but not the same</li>
+<li>glmmPQL vs HLM: similar but not the same, closer than Stata</li>
+<li>glmer vs Stata: exactly the same after rounding</li>
+</ul>
+
+    </body>
+    </html>
